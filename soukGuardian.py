@@ -16,6 +16,7 @@ st.markdown("""
                     url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?w=1920&q=85')
                     no-repeat center center fixed;
         background-size: cover;
+        color: white !important;
     }
 
    
