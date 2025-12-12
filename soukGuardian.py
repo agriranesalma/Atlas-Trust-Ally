@@ -18,27 +18,30 @@ st.markdown("""
         background-size: cover;
     }
     .main > div {
-        background: rgba(255,255,255,0.96);
+        background: rgba(255,255,255,0.97);
         border-radius: 28px;
-        padding: 2.5rem;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.22);
-        max-width: 900px;
-        margin: 1rem auto;
+        padding: 3rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0,3);
+        max-width: 950px;
+        margin: 2rem auto;
     }
     h1 {
-        text-align: center;
-        font-size: 4.2rem;
-        background: linear-gradient(90deg, #C8102E, #006400);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 5.8rem ;
         font-weight: 900;
-        margin: 1rem 0;
+        text-align: center;
+        color: white ;
+        text-shadow: 6px 6px 20px rgba(0,0,0,0.9);
+        letter-spacing: 4px;
+        margin: 2rem 0 1.5rem 0;
+        line-height: 1.1;
     }
     .tag {
+        font-size: 2.4rem ;
+        font-weight: 700;
         text-align: center;
-        font-size: 1.8rem;
-        color: #1a1a1a;
-        margin: 2rem 0;
+        color: white ;
+        text-shadow: 4px 4px 15px rgba(0,0,0,0.9);
+        margin: 0 0 4rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
