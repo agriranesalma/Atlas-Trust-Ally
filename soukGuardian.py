@@ -20,7 +20,7 @@ st.markdown("""
 
    
     h1 {
-        font-size: 21rem;      
+        font-size: 14rem;      
         font-weight: 900;
         text-align: center;
         background: linear-gradient(90deg,
