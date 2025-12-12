@@ -12,22 +12,22 @@ st.set_page_config(page_title="Souk Guardian 2030", page_icon="Morocco", layout=
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)),
+        background: linear-gradient(rgba(0,0,0,0.50), rgba(0,0,0,0.60)),
                     url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?w=1920&q=85')
                     no-repeat center center fixed;
         background-size: cover;
     }
     .main > div {
         background: rgba(255,255,255,0.96);
-        border-radius: 25px;
-        padding: 2rem 3rem;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        border-radius: 28px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.22);
         max-width: 900px;
-        margin: 2rem auto;
+        margin: 1rem auto;
     }
     h1 {
         text-align: center;
-        font-size: 4rem;
+        font-size: 4.2rem;
         background: linear-gradient(90deg, #C8102E, #006400);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -36,8 +36,8 @@ st.markdown("""
     }
     .tag {
         text-align: center;
-        font-size: 1.7rem;
-        color: #222;
+        font-size: 1.8rem;
+        color: #1a1a1a;
         margin: 2rem 0;
     }
 </style>
