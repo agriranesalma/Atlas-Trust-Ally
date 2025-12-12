@@ -27,7 +27,7 @@ st.markdown("""
     }
     h1 {
         font-size: 6.2rem ;
-        font-weight: 900;
+        font-weight: 1300;
         text-align: center;
         background: linear-gradient(90deg, #C8102E 0%, #C8102E 50%, #006400 50%, #006400 100%);
         -webkit-background-clip: text;
