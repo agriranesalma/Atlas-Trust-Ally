@@ -26,22 +26,24 @@ st.markdown("""
         margin: 2rem auto;
     }
     h1 {
-        font-size: 5.8rem ;
+        font-size: 6.2rem ;
         font-weight: 900;
         text-align: center;
-        color: brown ;
-        text-shadow: 6px 6px 20px rgba(0,0,0,0.9);
-        letter-spacing: 4px;
-        margin: 2rem 0 1.5rem 0;
-        line-height: 1.1;
+        background: linear-gradient(90deg, #C8102E 0%, #C8102E 50%, #006400 50%, #006400 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(0,0,0,0.7);
+        letter-spacing: 6px;
+        margin: 2.5rem 0 1rem 0;
     }
+
     .tag {
-        font-size: 2.4rem ;
+        font-size: 2.5rem !important;
         font-weight: 700;
         text-align: center;
-        color: white ;
-        text-shadow: 4px 4px 15px rgba(0,0,0,0.9);
-        margin: 0 0 4rem 0;
+        color: #ffffff ;
+        text-shadow: 0 0 20px rgba(0,0,0,0.8);
+        margin: 1rem 0 4rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
