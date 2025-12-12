@@ -12,7 +12,7 @@ st.set_page_config(page_title="Souk Guardian 2030", page_icon="Morocco", layout=
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.62)),
+        background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
                     url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?w=1920&q=85')
                     no-repeat center center fixed;
         background-size: cover;
