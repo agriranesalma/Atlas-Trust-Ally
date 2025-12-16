@@ -7,14 +7,13 @@ import tensorflow as tf
 import numpy as np
 import math
 
-# ========================= PAGE CONFIG & STYLE =========================
 st.set_page_config(page_title="Bargain Guardian Maroc", page_icon="🇲🇦", layout="centered")
 
 st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1586140388716-7e88a53d6c30?w=1920&q=85')  /* Rabat-style background */
+                    url('https://images.unsplash.com/photo-1586140388716-7e88a53d6c30?w=1920&q=85')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
@@ -53,14 +52,10 @@ st.markdown("""
 st.markdown("<h1>BARGAIN GUARDIAN</h1>", unsafe_allow_html=True)
 st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
 
-# ========================= TABS =========================
-tab1, tab2 = st.tabs(["🛍️ Souk Bargain Helper", "🚕 Taxi Fare Checker"])
+tab1, tab2 = st.tabs(["Souk Bargain Helper", "Taxi Fare Checker"])
 
-# ===================================================================
-# ========================= TAB 1: SOUK BARGAIN HELPER (unchanged) =========================
-# ===================================================================
 with tab1:
-    st.markdown("### 🛍️ Souk Bargain Helper – Never Overpay in the Medina")
+    st.markdown("### Souk Bargain Helper – Never Overpay in the Medina")
 
     data = {
         "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
@@ -141,7 +136,7 @@ with tab1:
             st.warning(f"A bit high… bargain down to {item['max_price']} DH")
         else:
             st.error(f"TOO EXPENSIVE! Fair range: {item['min_price']}–{item['max_price']} DH")
-            st.info("Say this → This price is for tourists only? Too expensive!")
+            st.info("Say in Darija → This price is for tourists only? Too expensive!")
         if price > item["max_price"]:
             savings = price - item["max_price"]
             st.success(f"You save **{savings} DH** by bargaining!")
@@ -150,11 +145,8 @@ with tab1:
                 st.session_state.pop(k, None)
             st.rerun()
 
-# ===================================================================
-# ========================= TAB 2: TAXI FARE CHECKER (Rabat version) =========================
-# ===================================================================
 with tab2:
-    st.markdown("### 🚕 Taxi Fare Checker – Fair Taxi Prices in Rabat")
+    st.markdown("### Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371
@@ -164,7 +156,6 @@ with tab2:
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         return round(R * c, 2)
 
-    # Popular places in Rabat
     popular_places = {
         "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
         "Rabat Ville Train Station": (34.0135, -6.8322),
@@ -174,7 +165,6 @@ with tab2:
         "Chellah": (34.0067, -6.8213),
         "Bouregreg Marina": (34.0235, -6.8280),
         "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
-        "Mohammed VI Tower (future)": (34.0220, -6.8280),
         "Agdal District": (34.0020, -6.8560)
     }
 
@@ -196,8 +186,7 @@ with tab2:
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
 
-    # Map centered on Rabat
-    center = arr_point or dep_point or (34.0209, -6.8416)  # Rabat center
+    center = arr_point or dep_point or (34.0209, -6.8416)
     m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
@@ -223,16 +212,16 @@ with tab2:
                 asked = int(taxi_price)
 
                 if any(haversine(p[0], p[1], 34.0511, -6.7515) < 10 for p in [dep_point, arr_point]):
-                    st.warning("⚠️ Airport trip? Use grand taxi – fixed price ~250-300 DH")
+                    st.warning("Airport trip? Use grand taxi – fixed price ~250-300 DH")
 
                 st.write(f"**Distance**: {distance} km | **Fair price**: up to **{fair_price} DH**")
                 if asked <= fair_price:
-                    st.success("🟢 FAIR PRICE!")
+                    st.success("FAIR PRICE!")
                 elif asked <= fair_price * 1.4:
-                    st.warning("🟡 A bit high – bargain down")
+                    st.warning("A bit high – bargain down")
                 else:
-                    st.error("🔴 OVERPRICED!")
-                    st.info("Say this → This price is for tourists only? Too expensive!")
+                    st.error("OVERPRICED!")
+                    st.info("Say in Darija → This price is for tourists only? Too expensive!")
 
                 if asked > fair_price:
                     st.success(f"You can save **{asked - fair_price} DH** by bargaining!")
@@ -241,6 +230,5 @@ with tab2:
             st.session_state.taxi_points = {"depart": None, "arrival": None}
             st.rerun()
 
-# ========================= FOOTER =========================
 st.markdown("---")
-st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
+st.caption("Bargain Guardian Maroc © 2025 – Your shield against any possible overpricing in Rabat's souks and taxis 🇲🇦")
