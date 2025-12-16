@@ -14,7 +14,7 @@ st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1594737610620-3e7d4a3f9c3f?w=1920&q=85')
+                    url('https://adghaltours.com/wp-content/uploads/2025/06/4-Moroccan-Souk-Guide-Discover-Unique-Finds-in-Marrakech-Adghal-Tours-1024x559.webp')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
@@ -160,15 +160,50 @@ with tab2:
     if "taxi_points" not in st.session_state:
         st.session_state.taxi_points = {"depart": None, "arrival": None}
 
-    st.info("Use the search bar on the map (top-left) to find any place (cafe, hotel, etc.). Type the name + 'Rabat' for best results!")
+    popular_places = {
+        "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
+        "Rabat Ville Train Station": (34.0135, -6.8322),
+        "Medina of Rabat": (34.0209, -6.8352),
+        "Kasbah of the Udayas": (34.0251, -6.8378),
+        "Hassan Tower": (34.0240, -6.8228),
+        "Chellah": (34.0067, -6.8213),
+        "Bouregreg Marina": (34.0235, -6.8280),
+        "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
+        "Agdal District": (34.0020, -6.8560),
+        "Café de France (Medina)": (34.0205, -6.8350),
+        "Paul Café Rabat": (34.0150, -6.8500),
+        "La Comédie Café": (34.0120, -6.8420),
+        "Café Maure (Kasbah)": (34.0255, -6.8380),
+        "Le Dhow (Bouregreg)": (34.0230, -6.8285),
+        "Villa Mandarine Hotel": (34.0300, -6.8500),
+        "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500),
+        "Tour Hassan Palace": (34.0220, -6.8250),
+        "Mohammed VI Museum": (34.0180, -6.8350),
+        "Andalusian Gardens": (34.0245, -6.8385),
+        "Rabat Zoo": (33.9500, -6.8900)
+    }
 
-    center = (34.0209, -6.8416)
-    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+    col1, col2 = st.columns(2)
+    with col1:
+        depart = st.selectbox("Departure (popular places)", [""] + list(popular_places.keys()), key="depart_rabat")
+        if depart:
+            st.session_state.taxi_points["depart"] = popular_places[depart]
+            st.success(f"Departure: {depart}")
+    with col2:
+        arrival = st.selectbox("Arrival (popular places)", [""] + list(popular_places.keys()), key="arrival_rabat")
+        if arrival:
+            st.session_state.taxi_points["arrival"] = popular_places[arrival]
+            st.success(f"Arrival: {arrival}")
 
-    Geocoder(collapsed=False).add_to(m_taxi)
+    st.info("🔍 Use the search bar on the map (top-left) to find any cafe, hotel, or place! Type name + 'Rabat' for accuracy (ex: 'Café de France Rabat')")
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
+
+    center = arr_point or dep_point or (34.0209, -6.8416)
+    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+
+    Geocoder(collapsed=False).add_to(m_taxi)
 
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
@@ -185,10 +220,10 @@ with tab2:
         point = (lat, lon)
         if not dep_point:
             st.session_state.taxi_points["depart"] = point
-            st.success("Departure set!")
+            st.success("Departure set by click on map!")
         elif not arr_point:
             st.session_state.taxi_points["arrival"] = point
-            st.success("Arrival set!")
+            st.success("Arrival set by click on map!")
         st.rerun()
 
     if dep_point and arr_point:
