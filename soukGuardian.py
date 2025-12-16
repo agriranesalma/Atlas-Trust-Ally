@@ -3,6 +3,7 @@ from PIL import Image
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
+from folium.plugins import Geocoder
 import tensorflow as tf
 import numpy as np
 import math
@@ -13,7 +14,7 @@ st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1586140388716-7e88a53d6c30?w=1920&q=85')
+                    url('https://images.unsplash.com/photo-1594737610620-3e7d4a3f9c3f?w=1920&q=85')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
@@ -156,53 +157,48 @@ with tab2:
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         return round(R * c, 2)
 
-    popular_places = {
-        "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
-        "Rabat Ville Train Station": (34.0135, -6.8322),
-        "Medina of Rabat": (34.0209, -6.8352),
-        "Kasbah of the Udayas": (34.0251, -6.8378),
-        "Hassan Tower": (34.0240, -6.8228),
-        "Chellah": (34.0067, -6.8213),
-        "Bouregreg Marina": (34.0235, -6.8280),
-        "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
-        "Agdal District": (34.0020, -6.8560)
-    }
-
     if "taxi_points" not in st.session_state:
         st.session_state.taxi_points = {"depart": None, "arrival": None}
 
-    col1, col2 = st.columns(2)
-    with col1:
-        depart = st.selectbox("Departure", [""] + list(popular_places.keys()), key="depart_rabat")
-        if depart:
-            st.session_state.taxi_points["depart"] = popular_places[depart]
-            st.success(f"Departure: {depart}")
-    with col2:
-        arrival = st.selectbox("Arrival", [""] + list(popular_places.keys()), key="arrival_rabat")
-        if arrival:
-            st.session_state.taxi_points["arrival"] = popular_places[arrival]
-            st.success(f"Arrival: {arrival}")
+    st.info("Use the search bar on the map (top-left) to find any place (cafe, hotel, etc.). Type the name + 'Rabat' for best results!")
+
+    center = (34.0209, -6.8416)
+    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+
+    Geocoder(collapsed=False).add_to(m_taxi)
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
 
-    center = arr_point or dep_point or (34.0209, -6.8416)
-    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
     if arr_point:
         folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green")).add_to(m_taxi)
-        folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
-    st_folium(m_taxi, width=700, height=400, key="taxi_map_rabat")
+        if dep_point:
+            folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
+
+    map_data = st_folium(m_taxi, width=700, height=500, key="taxi_map_search")
+
+    if map_data.get("last_clicked"):
+        lat = map_data["last_clicked"]["lat"]
+        lon = map_data["last_clicked"]["lng"]
+        point = (lat, lon)
+        if not dep_point:
+            st.session_state.taxi_points["depart"] = point
+            st.success("Departure set!")
+        elif not arr_point:
+            st.session_state.taxi_points["arrival"] = point
+            st.success("Arrival set!")
+        st.rerun()
 
     if dep_point and arr_point:
         col1, col2 = st.columns(2)
         with col1:
-            taxi_price = st.text_input("Price asked by driver (DH)", placeholder="150", key="taxi_price_rabat")
+            taxi_price = st.text_input("Price asked by driver (DH)", placeholder="150")
         with col2:
-            night = st.checkbox("Night trip (after 8 PM) +50%", key="night_rabat")
+            night = st.checkbox("Night trip (after 8 PM) +50%")
 
-        if st.button("Check Taxi Fare!", type="primary", key="btn_taxi_rabat"):
+        if st.button("Check Taxi Fare!", type="primary"):
             if not taxi_price.isdigit():
                 st.error("Enter a valid price")
             else:
@@ -231,4 +227,4 @@ with tab2:
             st.rerun()
 
 st.markdown("---")
-st.caption("Bargain Guardian Maroc © 2025 – Your shield against any possible overpricing in Rabat's souks and taxis 🇲🇦")
+st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
