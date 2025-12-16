@@ -5,179 +5,242 @@ import folium
 from streamlit_folium import st_folium
 import tensorflow as tf
 import numpy as np
+import math
 
-# ========================= PAGE =========================
-st.set_page_config(page_title="Souk Guardian 2030", page_icon=":morocco:", layout="centered")
+# ========================= PAGE CONFIG & STYLE =========================
+st.set_page_config(page_title="Bargain Guardian Maroc", page_icon="🇲🇦", layout="centered")
 
 st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?w=1920&q=85')
+                    url('https://images.unsplash.com/photo-1586140388716-7e88a53d6c30?w=1920&q=85')  /* Rabat-style background */
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
     }
-
-   
     h1 {
-        font-size: 14rem;      
+        font-size: 12rem;
         font-weight: 900;
         text-align: center;
-        background: linear-gradient(90deg,
-            #e31e24 0%,
-            #e31e24 38%,
-            #ffffff 20%,   
-            #006400 62%,
-            #006400 70%
-        );
+        background: linear-gradient(90deg, #e31e24 0%, #e31e24 38%, #ffffff 20%, #006400 62%, #006400 70%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 50px rgba(0,0,0,0.8);
-        letter-spacing: 12px;
-        margin: 3rem 0 1.5rem 0;
-        line-height: 1.1;
+        letter-spacing: 10px;
+        margin: 2rem 0 1rem 0;
     }
-
     .tag {
-        font-size: 2rem ;
+        font-size: 2.2rem;
         font-weight: 700;
         text-align: center;
-        color: #ffffff ;
+        color: #ffffff;
         text-shadow: 0 0 30px rgba(0,0,0,0.9);
-        margin: 1rem 0 5rem 0;
+        margin: 1rem 0 4rem 0;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2rem;
+        justify-content: center;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-size: 1.8rem;
+        font-weight: bold;
+        padding: 1rem 2rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>SOUK GUARDIAN 2030</h1>", unsafe_allow_html=True)
-st.markdown("<div class='tag'>Prends une photo → Découvre le prix juste → Négocie comme un Marocain</div>", unsafe_allow_html=True)
+st.markdown("<h1>BARGAIN GUARDIAN</h1>", unsafe_allow_html=True)
+st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
 
-# ========================= DATA =========================
-data = {
-    "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
-                "Ceramic plate", "Silver teapot", "Leather bag", "Spice mix 100g", "Small rug 1x1m"],
-    "item_ar": ["فانوس نحاسي", "طاجين فخار", "زيت أركان 100مل", "شال منسوج",
-                "طبق سيراميك", "تايبوت فضي", "حقيبة جلدية", "توابل 100غ", "زربية صغيرة 1×1م"],
-    "min_price": [120, 80, 150, 70, 50, 300, 250, 30, 800],
-    "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
-}
-df = pd.DataFrame(data)
+# ========================= TABS =========================
+tab1, tab2 = st.tabs(["🛍️ Souk Bargain Helper", "🚕 Taxi Fare Checker"])
 
-darija_lines = [
-    "هاد الثمن للسياح فقط؟ غالي بزاف!"
-]
+# ===================================================================
+# ========================= TAB 1: SOUK BARGAIN HELPER (unchanged) =========================
+# ===================================================================
+with tab1:
+    st.markdown("### 🛍️ Souk Bargain Helper – Never Overpay in the Medina")
 
-# ========================= TFLITE MODEL =========================
-@st.cache_resource
-def load_interpreter():
-    interpreter = tf.lite.Interpreter(model_path="souk_items_model.tflite")
-    interpreter.allocate_tensors()
-    return interpreter
+    data = {
+        "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
+                    "Ceramic plate", "Silver teapot", "Leather bag", "Spice mix 100g", "Small rug 1x1m"],
+        "item_ar": ["فانوس نحاسي", "طاجين فخار", "زيت أركان 100مل", "شال منسوج",
+                    "طبق سيراميك", "تايبوت فضي", "حقيبة جلدية", "توابل 100غ", "زربية صغيرة 1×1م"],
+        "min_price": [120, 80, 150, 70, 50, 300, 250, 30, 800],
+        "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
+    }
+    df = pd.DataFrame(data)
 
-interpreter = load_interpreter()
+    @st.cache_resource
+    def load_interpreter():
+        interpreter = tf.lite.Interpreter(model_path="souk_items_model.tflite")
+        interpreter.allocate_tensors()
+        return interpreter
 
-with open("souk_items_labels.txt", "r", encoding="utf-8") as f:
-    labels = [line.strip() for line in f.readlines()]
+    interpreter = load_interpreter()
+    with open("souk_items_labels.txt", "r", encoding="utf-8") as f:
+        labels = [line.strip() for line in f.readlines()]
 
-def predict_item(img_pil):
-    img = img_pil.convert("RGB").resize((224, 224))
-    input_array = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    interpreter.set_tensor(input_details[0]["index"], input_array)
-    interpreter.invoke()
-    predictions = interpreter.get_tensor(output_details[0]["index"])[0]
-    idx = np.argmax(predictions)
-    return labels[idx], float(predictions[idx])
+    def predict_item(img_pil):
+        img = img_pil.convert("RGB").resize((224, 224))
+        input_array = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        interpreter.set_tensor(input_details[0]["index"], input_array)
+        interpreter.invoke()
+        predictions = interpreter.get_tensor(output_details[0]["index"])[0]
+        idx = np.argmax(predictions)
+        return labels[idx], float(predictions[idx])
 
-# ========================= UI =========================
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("1. Item Photo")
+        photo = st.camera_input("Take a clear photo of the item", key="cam_souk")
+    with col2:
+        st.subheader("2. Asked Price")
+        price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_souk")
+        st.subheader("3. Item Type")
+        default_idx = 0
+        photo_to_use = photo or st.session_state.get("photo_souk")
+        if photo_to_use:
+            try:
+                name, conf = predict_item(Image.open(photo_to_use))
+                st.success(f"Detected → **{name}** ({conf:.1%} confidence)")
+                if conf >= 0.70:
+                    clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
+                    match = df[df["item_en"].str.contains(clean_name.split()[0], case=False)]
+                    if not match.empty:
+                        default_idx = int(match.index[0])
+                        st.info("Item auto-selected")
+            except:
+                pass
+        selected_idx = st.selectbox("Confirm or choose item", options=range(len(df)), index=default_idx,
+                                    format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}", key="select_souk")
 
-with col1:
-    st.subheader("1. Photo")
-    photo = st.camera_input("Prends une photo de l’article", key="cam")
+    if st.button("Check Price!", type="primary", key="btn_souk"):
+        if not price_input or not price_input.isdigit():
+            st.error("Please enter a valid price in numbers!")
+        else:
+            st.session_state.analyzed_souk = True
+            st.session_state.price_souk = int(price_input)
+            st.session_state.item_idx_souk = selected_idx
+            st.session_state.photo_souk = photo
+            st.rerun()
 
-with col2:
-    st.subheader("2. Prix demandé")
-    price_input = st.text_input("Exemple : 450", placeholder="400", key="price_input")
+    if st.session_state.get("analyzed_souk"):
+        item = df.iloc[st.session_state.item_idx_souk]
+        price = st.session_state.price_souk
+        st.markdown("---")
+        if st.session_state.photo_souk:
+            st.image(st.session_state.photo_souk, use_column_width=True)
+        st.subheader(f"{item['item_en']} – {item['item_ar']}")
+        if price <= item["max_price"]:
+            st.success(f"FAIR PRICE! You can pay {price} DH")
+        elif price <= item["max_price"] * 1.5:
+            st.warning(f"A bit high… bargain down to {item['max_price']} DH")
+        else:
+            st.error(f"TOO EXPENSIVE! Fair range: {item['min_price']}–{item['max_price']} DH")
+            st.info("Say this → This price is for tourists only? Too expensive!")
+        if price > item["max_price"]:
+            savings = price - item["max_price"]
+            st.success(f"You save **{savings} DH** by bargaining!")
+        if st.button("New analysis"):
+            for k in ["analyzed_souk", "price_souk", "item_idx_souk", "photo_souk"]:
+                st.session_state.pop(k, None)
+            st.rerun()
 
-    st.subheader("3. Article")
-    # Auto-detect and pre-select
-    default_idx = 0
-    photo_to_use = photo or st.session_state.get("photo")
+# ===================================================================
+# ========================= TAB 2: TAXI FARE CHECKER (Rabat version) =========================
+# ===================================================================
+with tab2:
+    st.markdown("### 🚕 Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
-    if photo_to_use:
-        try:
-            name, conf = predict_item(Image.open(photo_to_use))
-            st.success(f"Je détecte → **{name}** ({conf:.1%})")
+    def haversine(lat1, lon1, lat2, lon2):
+        R = 6371
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return round(R * c, 2)
 
-            if conf >= 0.70:  # 70%+ = auto-select
-                clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
-                match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
-                if not match.empty:
-                    default_idx = int(match.index[0])
-                    st.info("Article auto-sélectionné")
-        except:
-            pass
+    # Popular places in Rabat
+    popular_places = {
+        "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
+        "Rabat Ville Train Station": (34.0135, -6.8322),
+        "Medina of Rabat": (34.0209, -6.8352),
+        "Kasbah of the Udayas": (34.0251, -6.8378),
+        "Hassan Tower": (34.0240, -6.8228),
+        "Chellah": (34.0067, -6.8213),
+        "Bouregreg Marina": (34.0235, -6.8280),
+        "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
+        "Mohammed VI Tower (future)": (34.0220, -6.8280),
+        "Agdal District": (34.0020, -6.8560)
+    }
 
-  
-    selected_idx = st.selectbox(
-        "Article (auto-sélectionné si photo claire)",
-        options=range(len(df)),
-        index=default_idx,
-        format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
-    )
+    if "taxi_points" not in st.session_state:
+        st.session_state.taxi_points = {"depart": None, "arrival": None}
 
-# ========================= ANALYSE =========================
-if st.button("Analyser le prix !", type="primary"):
-    if not price_input or not price_input.isdigit():
-        st.error("Entre un prix en chiffres !")
-    else:
-        st.session_state.analyzed = True
-        st.session_state.price = int(price_input)
-        st.session_state.item_idx = selected_idx
-        st.session_state.photo = photo
-        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        depart = st.selectbox("Departure", [""] + list(popular_places.keys()), key="depart_rabat")
+        if depart:
+            st.session_state.taxi_points["depart"] = popular_places[depart]
+            st.success(f"Departure: {depart}")
+    with col2:
+        arrival = st.selectbox("Arrival", [""] + list(popular_places.keys()), key="arrival_rabat")
+        if arrival:
+            st.session_state.taxi_points["arrival"] = popular_places[arrival]
+            st.success(f"Arrival: {arrival}")
 
-# ========================= RESULTS =========================
-if st.session_state.get("analyzed"):
-    item = df.iloc[st.session_state.item_idx]
-    price = st.session_state.price
+    dep_point = st.session_state.taxi_points["depart"]
+    arr_point = st.session_state.taxi_points["arrival"]
 
-    st.markdown("---")
-    if st.session_state.photo:
-        st.image(st.session_state.photo, use_column_width=True)
+    # Map centered on Rabat
+    center = arr_point or dep_point or (34.0209, -6.8416)  # Rabat center
+    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+    if dep_point:
+        folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
+    if arr_point:
+        folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green")).add_to(m_taxi)
+        folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
+    st_folium(m_taxi, width=700, height=400, key="taxi_map_rabat")
 
-    st.subheader(f"{item['item_en']} – {item['item_ar']}")
+    if dep_point and arr_point:
+        col1, col2 = st.columns(2)
+        with col1:
+            taxi_price = st.text_input("Price asked by driver (DH)", placeholder="150", key="taxi_price_rabat")
+        with col2:
+            night = st.checkbox("Night trip (after 8 PM) +50%", key="night_rabat")
 
-    if price <= item["max_price"]:
-        st.success(f"PRIX JUSTE ! Tu peux payer {price} DH")
-    elif price <= item["max_price"] * 1.5:
-        st.warning(f"Un peu cher… négocie vers {item['max_price']} DH")
-    else:
-        st.error(f"ARNAQUE ! Prix réel {item['min_price']}–{item['max_price']} DH")
-        st.info("Dis-lui en darija → " + darija_lines[price % len(darija_lines)])
+        if st.button("Check Taxi Fare!", type="primary", key="btn_taxi_rabat"):
+            if not taxi_price.isdigit():
+                st.error("Enter a valid price")
+            else:
+                distance = haversine(dep_point[0], dep_point[1], arr_point[0], arr_point[1])
+                base_price = max(25, 8 + distance * 8)
+                fair_price = int(base_price * 1.5) if night else int(base_price)
+                asked = int(taxi_price)
 
-    
+                if any(haversine(p[0], p[1], 34.0511, -6.7515) < 10 for p in [dep_point, arr_point]):
+                    st.warning("⚠️ Airport trip? Use grand taxi – fixed price ~250-300 DH")
 
-    if price > item["max_price"]:
-        savings = price - item["max_price"]
-        st.success(f"Tu économises **{savings} DH**")
+                st.write(f"**Distance**: {distance} km | **Fair price**: up to **{fair_price} DH**")
+                if asked <= fair_price:
+                    st.success("🟢 FAIR PRICE!")
+                elif asked <= fair_price * 1.4:
+                    st.warning("🟡 A bit high – bargain down")
+                else:
+                    st.error("🔴 OVERPRICED!")
+                    st.info("Say this → This price is for tourists only? Too expensive!")
 
-    if st.button("Nouvelle analyse"):
-        for k in ["analyzed", "price", "item_idx", "photo"]:
-            st.session_state.pop(k, None)
-        st.rerun()
+                if asked > fair_price:
+                    st.success(f"You can save **{asked - fair_price} DH** by bargaining!")
 
-# ========================= MAP =========================
+        if st.button("New taxi check"):
+            st.session_state.taxi_points = {"depart": None, "arrival": None}
+            st.rerun()
+
+# ========================= FOOTER =========================
 st.markdown("---")
-st.subheader("Zones à Casablanca")
-m = folium.Map(location=[33.5731, -7.5898], zoom_start=12, tiles="cartodbpositron")
-folium.CircleMarker([33.595, -7.618], radius=40, color="#e74c3c", fill=True,
-                    popup="Prix gonflés", tooltip="Médina").add_to(m)
-folium.CircleMarker([33.570, -7.585], radius=35, color="#2ecc71", fill=True,
-                    popup="Bons vendeurs", tooltip="Derb Ghallef").add_to(m)
-st_folium(m, width=700, height=400, key="permanent_map")
-
-st.caption("Souk Guardian 2030 – Ton bouclier anti-arnaque")
+st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
