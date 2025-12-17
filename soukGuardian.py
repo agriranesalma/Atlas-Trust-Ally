@@ -3,7 +3,6 @@ from PIL import Image
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
-from folium.plugins import Geocoder
 import tensorflow as tf
 import numpy as np
 import math
@@ -163,79 +162,59 @@ with tab2:
     popular_places = {
         "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
         "Rabat Ville Train Station": (34.0135, -6.8322),
+        "Rabat Agdal Train Station": (33.9990, -6.8550),
+        "Prince Moulay Abdellah Stadium": (34.0085, -6.8750),
         "Medina of Rabat": (34.0209, -6.8352),
         "Kasbah of the Udayas": (34.0251, -6.8378),
         "Hassan Tower": (34.0240, -6.8228),
-        "Chellah": (34.0067, -6.8213),
+        "Mausoleum of Mohammed V": (34.0238, -6.8225),
+        "Chellah Necropolis": (34.0067, -6.8213),
         "Bouregreg Marina": (34.0235, -6.8280),
         "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
-        "Prince Moulay Abdellah Stadium": (34.0085, -6.8750),
+        "Andalusian Gardens": (34.0245, -6.8385),
+        "Mohammed VI Tower": (34.0220, -6.8280),
         "Agdal District": (34.0020, -6.8560),
+        "Hay Riad District": (34.0000, -6.8200),
+        "Sale Medina": (34.0389, -6.8166),
+        "Mega Mall Rabat": (33.9570, -6.8700),
+        "Arribat Center Mall": (33.9810, -6.8700),
         "Café de France (Medina)": (34.0205, -6.8350),
         "Paul Café Rabat": (34.0150, -6.8500),
         "La Comédie Café": (34.0120, -6.8420),
         "Café Maure (Kasbah)": (34.0255, -6.8380),
         "Le Dhow (Bouregreg)": (34.0230, -6.8285),
-        "Mega Mall Rabat": (33.9570, -6.8700),
-        "Arribat Center Mall": (33.9810, -6.8700),
+        "Café Carrion": (34.0155, -6.8340),
+        "Café Weimar": (34.0140, -6.8350),
+        "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500),
+        "Tour Hassan Palace Hotel": (34.0220, -6.8250),
+        "Villa Mandarine": (34.0300, -6.8500),
+        "Farah Rabat Hotel": (34.0180, -6.8420),
+        "Mohammed VI Museum of Modern Art": (34.0180, -6.8350),
+        "National Library of Morocco": (34.0080, -6.8480),
         "Rabat Zoo": (33.9500, -6.8900),
-        "Sale Medina": (34.0389, -6.8166),
-        "Villa Mandarine Hotel": (34.0300, -6.8500),
-        "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500)
+        "Faculty of Medicine Rabat (UM5)": (34.0030, -6.8580),
+        "International University of Rabat (UIR)": (33.9800, -6.7400),
+        "Hôpital Militaire Mohammed V": (34.0120, -6.8280),
+        "Hôpital Cheikh Zaid": (34.0000, -6.8200),
+        "Bab er-Rouah": (34.0150, -6.8380),
+        "Bab Chellah": (34.0070, -6.8210),
+        "Avenue Mohammed VI": (34.0100, -6.8500),
+        "Restaurant Dinarjat": (34.0210, -6.8360)
     }
+
+    st.info("🔍 Select from the long list of popular places or click on the map for any location!")
 
     col1, col2 = st.columns(2)
     with col1:
-        quick_depart = st.selectbox("Quick Departure", [""] + list(popular_places.keys()))
-        if quick_depart:
-            st.session_state.taxi_points["depart"] = popular_places[quick_depart]
+        depart = st.selectbox("Departure (popular places)", [""] + list(popular_places.keys()), key="depart_rabat")
+        if depart:
+            st.session_state.taxi_points["depart"] = popular_places[depart]
+            st.success(f"Departure: {depart}")
     with col2:
-        quick_arrival = st.selectbox("Quick Arrival", [""] + list(popular_places.keys()))
-        if quick_arrival:
-            st.session_state.taxi_points["arrival"] = popular_places[quick_arrival]
-
-    st.info("🔍 Or type any place (cafe, hotel, etc.) – we automatically search in Rabat!")
-
-    col_search1, col_search2 = st.columns(2)
-    with col_search1:
-        search_depart = st.text_input("Search Departure", placeholder="Ex: Paul Café, train station")
-        if st.button("Search Departure", key="btn_depart"):
-            query = f"{search_depart}, Rabat, Morocco"
-            with st.spinner("Searching..."):
-                url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1&countrycodes=ma"
-                headers = {"User-Agent": "BargainGuardianApp/1.0"}
-                try:
-                    response = requests.get(url, headers=headers).json()
-                    if response:
-                        lat = float(response[0]["lat"])
-                        lon = float(response[0]["lon"])
-                        name = response[0]["display_name"].split(",")[0]
-                        st.session_state.taxi_points["depart"] = (lat, lon)
-                        st.success(f"Departure: {name}")
-                    else:
-                        st.error("Not found – try more details")
-                except:
-                    st.error("Search error – try again")
-
-    with col_search2:
-        search_arrival = st.text_input("Search Arrival", placeholder="Ex: Café Maure, stadium")
-        if st.button("Search Arrival", key="btn_arrival"):
-            query = f"{search_arrival}, Rabat, Morocco"
-            with st.spinner("Searching..."):
-                url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1&countrycodes=ma"
-                headers = {"User-Agent": "BargainGuardianApp/1.0"}
-                try:
-                    response = requests.get(url, headers=headers).json()
-                    if response:
-                        lat = float(response[0]["lat"])
-                        lon = float(response[0]["lon"])
-                        name = response[0]["display_name"].split(",")[0]
-                        st.session_state.taxi_points["arrival"] = (lat, lon)
-                        st.success(f"Arrival: {name}")
-                    else:
-                        st.error("Not found – try more details")
-                except:
-                    st.error("Search error – try again")
+        arrival = st.selectbox("Arrival (popular places)", [""] + list(popular_places.keys()), key="arrival_rabat")
+        if arrival:
+            st.session_state.taxi_points["arrival"] = popular_places[arrival]
+            st.success(f"Arrival: {arrival}")
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
@@ -245,13 +224,24 @@ with tab2:
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
     if arr_point:
-        folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green")).add_to(m_taxi)
+        folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green|")).add_to(m_taxi)
         if dep_point:
             folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
-    st_folium(m_taxi, width=700, height=400, key="taxi_map")
 
+    map_data = st_folium(m_taxi, width=700, height=500, key="taxi_map")
 
-    # Analysis
+    if map_data.get("last_clicked"):
+        lat = map_data["last_clicked"]["lat"]
+        lon = map_data["last_clicked"]["lng"]
+        point = (lat, lon)
+        if not dep_point:
+            st.session_state.taxi_points["depart"] = point
+            st.success("Departure set by click!")
+        elif not arr_point:
+            st.session_state.taxi_points["arrival"] = point
+            st.success("Arrival set by click!")
+        st.rerun()
+
     if dep_point and arr_point:
         col1, col2 = st.columns(2)
         with col1:
@@ -278,7 +268,7 @@ with tab2:
                     st.warning("A bit high – bargain down")
                 else:
                     st.error("OVERPRICED!")
-                    st.info("Say in Darija → This price is for tourists only? Too expensive!")
+                    st.info("Say this → This price is for tourists only? Too expensive!")
 
                 if asked > fair_price:
                     st.success(f"You can save **{asked - fair_price} DH** by bargaining!")
@@ -286,5 +276,6 @@ with tab2:
         if st.button("New taxi check"):
             st.session_state.taxi_points = {"depart": None, "arrival": None}
             st.rerun()
+
 st.markdown("---")
-st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
+st.caption("Bargain Guardian Maroc © 2025 – Your shield against possible overpricing in Rabat's souks and taxis 🇲🇦")
