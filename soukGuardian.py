@@ -14,7 +14,7 @@ st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?q=80&w=1064&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+                    url('https://adghaltours.com/wp-content/uploads/2025/06/4-Moroccan-Souk-Guide-Discover-Unique-Finds-in-Marrakech-Adghal-Tours-1024x559.webp')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
@@ -177,10 +177,14 @@ with tab2:
         "Le Dhow (Bouregreg)": (34.0230, -6.8285),
         "Villa Mandarine Hotel": (34.0300, -6.8500),
         "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500),
-        "Tour Hassan Palace": (34.0220, -6.8250),
-        "Mohammed VI Museum": (34.0180, -6.8350),
+        "Tour Hassan Palace Hotel": (34.0220, -6.8250),
+        "Mohammed VI Museum of Modern Art": (34.0180, -6.8350),
         "Andalusian Gardens": (34.0245, -6.8385),
-        "Rabat Zoo": (33.9500, -6.8900)
+        "Rabat Zoo": (33.9500, -6.8900),
+        "Mega Mall Rabat": (33.9570, -6.8700),
+        "Hay Riad District": (34.0000, -6.8200),
+        "Sale Medina": (34.0389, -6.8166),
+        "Bab Chellah": (34.0070, -6.8210)
     }
 
     col1, col2 = st.columns(2)
@@ -195,7 +199,7 @@ with tab2:
             st.session_state.taxi_points["arrival"] = popular_places[arrival]
             st.success(f"Arrival: {arrival}")
 
-    st.info("🔍 Use the search bar on the map (top-left) to find any cafe, hotel, or place! Type name + 'Rabat' for accuracy (ex: 'Café de France Rabat')")
+    st.warning("🔍 **IMPORTANT TIP for map search**: Always add 'Rabat' or 'Morocco' to your query (ex: 'Rabat Ville train station Rabat') to avoid wrong locations like Kenitra or abroad!")
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
@@ -220,10 +224,10 @@ with tab2:
         point = (lat, lon)
         if not dep_point:
             st.session_state.taxi_points["depart"] = point
-            st.success("Departure set by click on map!")
+            st.success("Departure set by click!")
         elif not arr_point:
             st.session_state.taxi_points["arrival"] = point
-            st.success("Arrival set by click on map!")
+            st.success("Arrival set by click!")
         st.rerun()
 
     if dep_point and arr_point:
@@ -252,7 +256,7 @@ with tab2:
                     st.warning("A bit high – bargain down")
                 else:
                     st.error("OVERPRICED!")
-                    st.info("Say This → This price is for tourists only? Too expensive!")
+                    st.info("Say in Darija → This price is for tourists only? Too expensive!")
 
                 if asked > fair_price:
                     st.success(f"You can save **{asked - fair_price} DH** by bargaining!")
@@ -262,4 +266,4 @@ with tab2:
             st.rerun()
 
 st.markdown("---")
-st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
+st.caption("Bargain Guardian Maroc © 2025 – Your shield against possible overpricing in Rabat's souks and taxis 🇲🇦")
