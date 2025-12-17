@@ -149,6 +149,9 @@ with tab1:
 with tab2:
     st.markdown("### Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
+
+    GEOAPIFY_KEY = "b3483fa530b24675844bf7967b9c252d" 
+
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371
         dlat = math.radians(lat2 - lat1)
@@ -160,92 +163,95 @@ with tab2:
     if "taxi_points" not in st.session_state:
         st.session_state.taxi_points = {"depart": None, "arrival": None}
 
+    # Popular places list (quick access)
     popular_places = {
-    "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
-    "Rabat Ville Train Station": (34.0135, -6.8322),
-    "Rabat Agdal Train Station": (33.9990, -6.8550),
-    "Prince Moulay Abdellah Stadium": (34.0085, -6.8750),
-    "Medina of Rabat": (34.0209, -6.8352),
-    "Kasbah of the Udayas": (34.0251, -6.8378),
-    "Hassan Tower": (34.0240, -6.8228),
-    "Mausoleum of Mohammed V": (34.0238, -6.8225),
-    "Chellah Necropolis": (34.0067, -6.8213),
-    "Bouregreg Marina": (34.0235, -6.8280),
-    "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
-    "Andalusian Gardens": (34.0245, -6.8385),
-    "Mohammed VI Tower": (34.0220, -6.8280),
-    "Agdal District": (34.0020, -6.8560),
-    "Hay Riad District": (34.0000, -6.8200),
-    "Sale Medina": (34.0389, -6.8166),
-    "Mega Mall Rabat": (33.9570, -6.8700),
-    "Arribat Center Mall": (33.9810, -6.8700),
-    "Café de France (Medina)": (34.0205, -6.8350),
-    "Café Maure (Kasbah des Oudayas)": (34.0255, -6.8380),
-    "Paul Café Rabat": (34.0150, -6.8500),
-    "La Comédie Café": (34.0120, -6.8420),
-    "Le Dhow (Bouregreg Marina)": (34.0230, -6.8285),
-    "Café Carrion": (34.0155, -6.8340),
-    "Café Weimar": (34.0140, -6.8350),
-    "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500),
-    "Tour Hassan Palace Hotel": (34.0220, -6.8250),
-    "Villa Mandarine": (34.0300, -6.8500),
-    "Farah Rabat Hotel": (34.0180, -6.8420),
-    "Mohammed VI Museum of Modern Art": (34.0180, -6.8350),
-    "National Library of Morocco": (34.0080, -6.8480),
-    "Rabat Zoo": (33.9500, -6.8900),
-    "Faculty of Medicine Rabat (UM5)": (34.0030, -6.8580),
-    "International University of Rabat (UIR)": (33.9800, -6.7400),
-    "Hôpital Militaire Mohammed V": (34.0120, -6.8280),
-    "Hôpital Cheikh Zaid": (34.0000, -6.8200),
-    "Bab er-Rouah": (34.0150, -6.8380),
-    "Bab Chellah": (34.0070, -6.8210),
-    "Avenue Mohammed VI": (34.0100, -6.8500)
-}
+        "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
+        "Rabat Ville Train Station": (34.0135, -6.8322),
+        "Medina of Rabat": (34.0209, -6.8352),
+        "Kasbah of the Udayas": (34.0251, -6.8378),
+        "Hassan Tower": (34.0240, -6.8228),
+        "Chellah": (34.0067, -6.8213),
+        "Bouregreg Marina": (34.0235, -6.8280),
+        "Royal Palace (Dar al-Makhzen)": (34.0158, -6.8431),
+        "Prince Moulay Abdellah Stadium": (34.0085, -6.8750),
+        "Agdal District": (34.0020, -6.8560),
+        "Café de France (Medina)": (34.0205, -6.8350),
+        "Paul Café Rabat": (34.0150, -6.8500),
+        "La Comédie Café": (34.0120, -6.8420),
+        "Café Maure (Kasbah)": (34.0255, -6.8380),
+        "Le Dhow (Bouregreg)": (34.0230, -6.8285),
+        "Mega Mall Rabat": (33.9570, -6.8700),
+        "Arribat Center Mall": (33.9810, -6.8700),
+        "Rabat Zoo": (33.9500, -6.8900),
+        "Sale Medina": (34.0389, -6.8166)
+    }
 
-    col1, col2 = st.columns(2)
-    with col1:
-        depart = st.selectbox("Departure (popular places)", [""] + list(popular_places.keys()), key="depart_rabat")
-        if depart:
-            st.session_state.taxi_points["depart"] = popular_places[depart]
-            st.success(f"Departure: {depart}")
-    with col2:
-        arrival = st.selectbox("Arrival (popular places)", [""] + list(popular_places.keys()), key="arrival_rabat")
-        if arrival:
-            st.session_state.taxi_points["arrival"] = popular_places[arrival]
-            st.success(f"Arrival: {arrival}")
+    # Quick select
+    col_quick1, col_quick2 = st.columns(2)
+    with col_quick1:
+        quick_depart = st.selectbox("Quick Departure", [""] + list(popular_places.keys()))
+        if quick_depart:
+            st.session_state.taxi_points["depart"] = popular_places[quick_depart]
+    with col_quick2:
+        quick_arrival = st.selectbox("Quick Arrival", [""] + list(popular_places.keys()))
+        if quick_arrival:
+            st.session_state.taxi_points["arrival"] = popular_places[quick_arrival]
 
-    st.warning("🔍 **IMPORTANT**: In the map search bar (top-left), ALWAYS add 'Rabat' or 'Morocco' to your query!\n"
-               "Example: 'train station Rabat' or 'Café de France Rabat")
+    st.info("🔍 Or type any place below (cafe, hotel, etc.) + 'Rabat' for best results!")
+
+    #  search inputs
+    col_search1, col_search2 = st.columns(2)
+    with col_search1:
+        search_depart = st.text_input("Search Departure", placeholder="Ex: Café Maure Rabat")
+        if st.button("Search Departure", key="btn_search_depart"):
+            if GEOAPIFY_KEY == "YOUR_GEOAPIFY_API_KEY_HERE":
+                st.error("Add your Geoapify API key in the code!")
+            else:
+                with st.spinner("Searching..."):
+                    url = f"https://api.geoapify.com/v1/geocode/search?text={search_depart}&lang=en&limit=1&filter=countrycode:ma&apiKey={GEOAPIFY_KEY}"
+                    try:
+                        response = requests.get(url).json()
+                        if response.get("features"):
+                            lon, lat = response["features"][0]["geometry"]["coordinates"]
+                            st.session_state.taxi_points["depart"] = (lat, lon)
+                            name = response["features"][0]["properties"].get("formatted", search_depart)
+                            st.success(f"Departure: {name}")
+                    except:
+                        st.error("Not found – try adding 'Rabat'")
+
+    with col_search2:
+        search_arrival = st.text_input("Search Arrival", placeholder="Ex: Paul Café Rabat")
+        if st.button("Search Arrival", key="btn_search_arrival"):
+            if GEOAPIFY_KEY == "YOUR_GEOAPIFY_API_KEY_HERE":
+                st.error("Add your Geoapify API key in the code!")
+            else:
+                with st.spinner("Searching..."):
+                    url = f"https://api.geoapify.com/v1/geocode/search?text={search_arrival}&lang=en&limit=1&filter=countrycode:ma&apiKey={GEOAPIFY_KEY}"
+                    try:
+                        response = requests.get(url).json()
+                        if response.get("features"):
+                            lon, lat = response["features"][0]["geometry"]["coordinates"]
+                            st.session_state.taxi_points["arrival"] = (lat, lon)
+                            name = response["features"][0]["properties"].get("formatted", search_arrival)
+                            st.success(f"Arrival: {name}")
+                    except:
+                        st.error("Not found – try adding 'Rabat'")
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
 
+    # Map
     center = arr_point or dep_point or (34.0209, -6.8416)
     m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
-
-    Geocoder(collapsed=False).add_to(m_taxi)
-
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
     if arr_point:
         folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green")).add_to(m_taxi)
         if dep_point:
             folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
+    st_folium(m_taxi, width=700, height=400, key="taxi_map")
 
-    map_data = st_folium(m_taxi, width=700, height=500, key="taxi_map_search")
-
-    if map_data.get("last_clicked"):
-        lat = map_data["last_clicked"]["lat"]
-        lon = map_data["last_clicked"]["lng"]
-        point = (lat, lon)
-        if not dep_point:
-            st.session_state.taxi_points["depart"] = point
-            st.success("Departure set by click on map!")
-        elif not arr_point:
-            st.session_state.taxi_points["arrival"] = point
-            st.success("Arrival set by click on map!")
-        st.rerun()
-
+    # Analysis
     if dep_point and arr_point:
         col1, col2 = st.columns(2)
         with col1:
@@ -280,6 +286,5 @@ with tab2:
         if st.button("New taxi check"):
             st.session_state.taxi_points = {"depart": None, "arrival": None}
             st.rerun()
-
 st.markdown("---")
 st.caption("Bargain Guardian Maroc © 2025 – Your shield against overpricing in Rabat's souks and taxis 🇲🇦")
