@@ -149,9 +149,6 @@ with tab1:
 with tab2:
     st.markdown("### Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
-
-    GEOAPIFY_KEY = "b3483fa530b24675844bf7967b9c252d" 
-
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371
         dlat = math.radians(lat2 - lat1)
@@ -163,7 +160,6 @@ with tab2:
     if "taxi_points" not in st.session_state:
         st.session_state.taxi_points = {"depart": None, "arrival": None}
 
-    # Popular places list (quick access)
     popular_places = {
         "Rabat-Salé Airport (RBA)": (34.0511, -6.7515),
         "Rabat Ville Train Station": (34.0135, -6.8322),
@@ -183,64 +179,67 @@ with tab2:
         "Mega Mall Rabat": (33.9570, -6.8700),
         "Arribat Center Mall": (33.9810, -6.8700),
         "Rabat Zoo": (33.9500, -6.8900),
-        "Sale Medina": (34.0389, -6.8166)
+        "Sale Medina": (34.0389, -6.8166),
+        "Villa Mandarine Hotel": (34.0300, -6.8500),
+        "Sofitel Rabat Jardin des Roses": (34.0000, -6.8500)
     }
 
-    # Quick select
-    col_quick1, col_quick2 = st.columns(2)
-    with col_quick1:
+    col1, col2 = st.columns(2)
+    with col1:
         quick_depart = st.selectbox("Quick Departure", [""] + list(popular_places.keys()))
         if quick_depart:
             st.session_state.taxi_points["depart"] = popular_places[quick_depart]
-    with col_quick2:
+    with col2:
         quick_arrival = st.selectbox("Quick Arrival", [""] + list(popular_places.keys()))
         if quick_arrival:
             st.session_state.taxi_points["arrival"] = popular_places[quick_arrival]
 
-    st.info("🔍 Or type any place below (cafe, hotel, etc.) + 'Rabat' for best results!")
+    st.info("🔍 Or type any place (cafe, hotel, etc.) – we automatically search in Rabat!")
 
-    #  search inputs
     col_search1, col_search2 = st.columns(2)
     with col_search1:
-        search_depart = st.text_input("Search Departure", placeholder="Ex: Café Maure Rabat")
-        if st.button("Search Departure", key="btn_search_depart"):
-            if GEOAPIFY_KEY == "YOUR_GEOAPIFY_API_KEY_HERE":
-                st.error("Add your Geoapify API key in the code!")
-            else:
-                with st.spinner("Searching..."):
-                    url = f"https://api.geoapify.com/v1/geocode/search?text={search_depart}&lang=en&limit=1&filter=countrycode:ma&apiKey={GEOAPIFY_KEY}"
-                    try:
-                        response = requests.get(url).json()
-                        if response.get("features"):
-                            lon, lat = response["features"][0]["geometry"]["coordinates"]
-                            st.session_state.taxi_points["depart"] = (lat, lon)
-                            name = response["features"][0]["properties"].get("formatted", search_depart)
-                            st.success(f"Departure: {name}")
-                    except:
-                        st.error("Not found – try adding 'Rabat'")
+        search_depart = st.text_input("Search Departure", placeholder="Ex: Paul Café, train station")
+        if st.button("Search Departure", key="btn_depart"):
+            query = f"{search_depart}, Rabat, Morocco"
+            with st.spinner("Searching..."):
+                url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1&countrycodes=ma"
+                headers = {"User-Agent": "BargainGuardianApp/1.0"}
+                try:
+                    response = requests.get(url, headers=headers).json()
+                    if response:
+                        lat = float(response[0]["lat"])
+                        lon = float(response[0]["lon"])
+                        name = response[0]["display_name"].split(",")[0]
+                        st.session_state.taxi_points["depart"] = (lat, lon)
+                        st.success(f"Departure: {name}")
+                    else:
+                        st.error("Not found – try more details")
+                except:
+                    st.error("Search error – try again")
 
     with col_search2:
-        search_arrival = st.text_input("Search Arrival", placeholder="Ex: Paul Café Rabat")
-        if st.button("Search Arrival", key="btn_search_arrival"):
-            if GEOAPIFY_KEY == "YOUR_GEOAPIFY_API_KEY_HERE":
-                st.error("Add your Geoapify API key in the code!")
-            else:
-                with st.spinner("Searching..."):
-                    url = f"https://api.geoapify.com/v1/geocode/search?text={search_arrival}&lang=en&limit=1&filter=countrycode:ma&apiKey={GEOAPIFY_KEY}"
-                    try:
-                        response = requests.get(url).json()
-                        if response.get("features"):
-                            lon, lat = response["features"][0]["geometry"]["coordinates"]
-                            st.session_state.taxi_points["arrival"] = (lat, lon)
-                            name = response["features"][0]["properties"].get("formatted", search_arrival)
-                            st.success(f"Arrival: {name}")
-                    except:
-                        st.error("Not found – try adding 'Rabat'")
+        search_arrival = st.text_input("Search Arrival", placeholder="Ex: Café Maure, stadium")
+        if st.button("Search Arrival", key="btn_arrival"):
+            query = f"{search_arrival}, Rabat, Morocco"
+            with st.spinner("Searching..."):
+                url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1&countrycodes=ma"
+                headers = {"User-Agent": "BargainGuardianApp/1.0"}
+                try:
+                    response = requests.get(url, headers=headers).json()
+                    if response:
+                        lat = float(response[0]["lat"])
+                        lon = float(response[0]["lon"])
+                        name = response[0]["display_name"].split(",")[0]
+                        st.session_state.taxi_points["arrival"] = (lat, lon)
+                        st.success(f"Arrival: {name}")
+                    else:
+                        st.error("Not found – try more details")
+                except:
+                    st.error("Search error – try again")
 
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
 
-    # Map
     center = arr_point or dep_point or (34.0209, -6.8416)
     m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
     if dep_point:
@@ -250,6 +249,8 @@ with tab2:
         if dep_point:
             folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
     st_folium(m_taxi, width=700, height=400, key="taxi_map")
+
+    if dep_point and arr_point:
 
     # Analysis
     if dep_point and arr_point:
