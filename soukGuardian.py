@@ -100,33 +100,38 @@ with tab1:
         st.subheader("1. Photo")
         photo = st.camera_input("Take a clear photo of the item", key="cam")
 
-    with col2:
-        st.subheader("2. Asked Price")
-        price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_input")
+with col2:
+    st.subheader("2. Asked Price")
+    price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_souk")
+    st.subheader("3. Item Type")
+    default_idx = 0
+    photo_to_use = photo or st.session_state.get("photo_souk")
 
-        st.subheader("3. Item Type")
-        default_idx = 0
-        photo_to_use = photo or st.session_state.get("photo")
+    if photo_to_use:
+        try:
+            name, conf = predict_item(Image.open(photo_to_use))
+            st.success(f"Detected → **{name}** ({conf:.1%} confidence)")
 
-        if photo_to_use:
-            try:
-                name, conf = predict_item(Image.open(photo_to_use))
-                st.success(f"Detected → **{name}** ({conf:.1%} confidence)")
-                if conf >= 0.70:
-                    clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
-                    match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
-                    if not match.empty:
-                        default_idx = int(match.index[0])
-                        st.info("Item auto-selected")
-            except:
-                pass
+            if conf >= 0.90:  # Changed from 0.70 to 0.90
+                clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
+                match = df[df["item_en"].str.contains(clean_name.split()[0], case=False)]
+                if not match.empty:
+                    default_idx = int(match.index[0])
+                    st.info("Item auto-selected (high confidence)")
+                else:
+                    st.warning("Photo clear but item not in database – choose manually")
+            else:
+                st.warning("Photo not clear enough for auto-selection (confidence < 90%) – please choose item manually")
+        except Exception as e:
+            st.error("Error processing photo – please try again")
 
-        selected_idx = st.selectbox(
-            "Confirm or choose item",
-            options=range(len(df)),
-            index=default_idx,
-            format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
-        )
+    selected_idx = st.selectbox(
+        "Confirm or choose item",
+        options=range(len(df)),
+        index=default_idx,
+        format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}",
+        key="select_souk"
+    )
 
     if st.button("Check Price!", type="primary"):
         if not price_input or not price_input.isdigit():
