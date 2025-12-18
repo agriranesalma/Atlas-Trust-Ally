@@ -7,13 +7,13 @@ import tensorflow as tf
 import numpy as np
 import math
 
-st.set_page_config(page_title="Bargain Guardian Maroc", page_icon="🇲🇦", layout="centered")
+st.set_page_config(page_title="Atlas Trust Ally", page_icon="🇲🇦", layout="centered")
 
 st.markdown("""
 <style>
     .stApp {
         background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-                    url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?q=80&w=1064&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+                    url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?q=80&w=1064&auto=format&fit=crop')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
@@ -54,6 +54,7 @@ st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div
 
 tab1, tab2 = st.tabs(["Souk Bargain Helper", "Taxi Fare Checker"])
 
+# ========================= SOUK TAB =========================
 with tab1:
     st.markdown("### Souk Bargain Helper – Never Overpay in the Medina")
 
@@ -67,6 +68,10 @@ with tab1:
     }
     df = pd.DataFrame(data)
 
+    darija_lines = [
+        "هاد الثمن للسياح فقط؟ غالي بزاف!"
+    ]
+
     @st.cache_resource
     def load_interpreter():
         interpreter = tf.lite.Interpreter(model_path="souk_items_model.tflite")
@@ -74,6 +79,7 @@ with tab1:
         return interpreter
 
     interpreter = load_interpreter()
+
     with open("souk_items_labels.txt", "r", encoding="utf-8") as f:
         labels = [line.strip() for line in f.readlines()]
 
@@ -89,62 +95,77 @@ with tab1:
         return labels[idx], float(predictions[idx])
 
     col1, col2 = st.columns(2)
+
     with col1:
-        st.subheader("1. Item Photo")
-        photo = st.camera_input("Take a clear photo of the item", key="cam_souk")
+        st.subheader("1. Photo")
+        photo = st.camera_input("Take a clear photo of the item", key="cam")
+
     with col2:
         st.subheader("2. Asked Price")
-        price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_souk")
+        price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_input")
+
         st.subheader("3. Item Type")
         default_idx = 0
-        photo_to_use = photo or st.session_state.get("photo_souk")
+        photo_to_use = photo or st.session_state.get("photo")
+
         if photo_to_use:
             try:
                 name, conf = predict_item(Image.open(photo_to_use))
                 st.success(f"Detected → **{name}** ({conf:.1%} confidence)")
                 if conf >= 0.70:
                     clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
-                    match = df[df["item_en"].str.contains(clean_name.split()[0], case=False)]
+                    match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
                     if not match.empty:
                         default_idx = int(match.index[0])
                         st.info("Item auto-selected")
             except:
                 pass
-        selected_idx = st.selectbox("Confirm or choose item", options=range(len(df)), index=default_idx,
-                                    format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}", key="select_souk")
 
-    if st.button("Check Price!", type="primary", key="btn_souk"):
+        selected_idx = st.selectbox(
+            "Confirm or choose item",
+            options=range(len(df)),
+            index=default_idx,
+            format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
+        )
+
+    if st.button("Check Price!", type="primary"):
         if not price_input or not price_input.isdigit():
             st.error("Please enter a valid price in numbers!")
         else:
-            st.session_state.analyzed_souk = True
-            st.session_state.price_souk = int(price_input)
-            st.session_state.item_idx_souk = selected_idx
-            st.session_state.photo_souk = photo
+            st.session_state.analyzed = True
+            st.session_state.price = int(price_input)
+            st.session_state.item_idx = selected_idx
+            st.session_state.photo = photo
             st.rerun()
 
-    if st.session_state.get("analyzed_souk"):
-        item = df.iloc[st.session_state.item_idx_souk]
-        price = st.session_state.price_souk
+    if st.session_state.get("analyzed"):
+        item = df.iloc[st.session_state.item_idx]
+        price = st.session_state.price
+
         st.markdown("---")
-        if st.session_state.photo_souk:
-            st.image(st.session_state.photo_souk, use_column_width=True)
+        if st.session_state.photo:
+            st.image(st.session_state.photo, use_column_width=True)
+
         st.subheader(f"{item['item_en']} – {item['item_ar']}")
+
         if price <= item["max_price"]:
             st.success(f"FAIR PRICE! You can pay {price} DH")
         elif price <= item["max_price"] * 1.5:
             st.warning(f"A bit high… bargain down to {item['max_price']} DH")
         else:
             st.error(f"TOO EXPENSIVE! Fair range: {item['min_price']}–{item['max_price']} DH")
-            st.info("Say in Darija → This price is for tourists only? Too expensive!")
+            st.info("Say in Darija → " + darija_lines[price % len(darija_lines)])
+
         if price > item["max_price"]:
             savings = price - item["max_price"]
             st.success(f"You save **{savings} DH** by bargaining!")
+
         if st.button("New analysis"):
-            for k in ["analyzed_souk", "price_souk", "item_idx_souk", "photo_souk"]:
+            for k in ["analyzed", "price", "item_idx", "photo"]:
                 st.session_state.pop(k, None)
             st.rerun()
 
+# ========================= TAXI TAB =========================
 with tab2:
     st.markdown("### Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
@@ -202,16 +223,16 @@ with tab2:
         "Restaurant Dinarjat": (34.0210, -6.8360)
     }
 
-    st.info("🔍 Select from the long list of popular places or click on the map for any location!")
+    st.info("Select from the long list or click on the map for any location")
 
     col1, col2 = st.columns(2)
     with col1:
-        depart = st.selectbox("Departure (popular places)", [""] + list(popular_places.keys()), key="depart_rabat")
+        depart = st.selectbox("Departure", [""] + list(popular_places.keys()), key="depart_rabat")
         if depart:
             st.session_state.taxi_points["depart"] = popular_places[depart]
             st.success(f"Departure: {depart}")
     with col2:
-        arrival = st.selectbox("Arrival (popular places)", [""] + list(popular_places.keys()), key="arrival_rabat")
+        arrival = st.selectbox("Arrival", [""] + list(popular_places.keys()), key="arrival_rabat")
         if arrival:
             st.session_state.taxi_points["arrival"] = popular_places[arrival]
             st.success(f"Arrival: {arrival}")
@@ -219,18 +240,20 @@ with tab2:
     dep_point = st.session_state.taxi_points["depart"]
     arr_point = st.session_state.taxi_points["arrival"]
 
-    center = arr_point or dep_point 
-    m_taxi = folium.Map(location=center, zoom_start=13, tiles="cartodbpositron")
+
+    center_coords = arr_point or dep_point or (34.0209, -6.8416)
+
+    m_taxi = folium.Map(location=center_coords, zoom_start=13, tiles="cartodbpositron")
     if dep_point:
         folium.Marker(dep_point, tooltip="Departure", icon=folium.Icon(color="red")).add_to(m_taxi)
     if arr_point:
-        folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green|")).add_to(m_taxi)
+        folium.Marker(arr_point, tooltip="Arrival", icon=folium.Icon(color="green")).add_to(m_taxi)
         if dep_point:
             folium.PolyLine([dep_point, arr_point], color="blue", weight=6).add_to(m_taxi)
 
     map_data = st_folium(m_taxi, width=700, height=500, key="taxi_map")
 
-    if map_data.get("last_clicked"):
+    if map_data and map_data.get("last_clicked"):
         lat = map_data["last_clicked"]["lat"]
         lon = map_data["last_clicked"]["lng"]
         point = (lat, lon)
@@ -268,7 +291,7 @@ with tab2:
                     st.warning("A bit high – bargain down")
                 else:
                     st.error("OVERPRICED!")
-                    st.info("Say this → This price is for tourists only? Too expensive!")
+                    st.info("Say in Darija → This price is for tourists only? Too expensive!")
 
                 if asked > fair_price:
                     st.success(f"You can save **{asked - fair_price} DH** by bargaining!")
@@ -278,4 +301,4 @@ with tab2:
             st.rerun()
 
 st.markdown("---")
-st.caption("Bargain Guardian Maroc © 2025 – Your shield against possible overpricing in Rabat's souks and taxis 🇲🇦")
+st.caption("Atlas Trust Ally © 2025 – Your shield against possible overpricing in Rabat's souks and taxis 🇲🇦")
