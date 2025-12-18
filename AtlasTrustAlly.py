@@ -12,48 +12,94 @@ st.set_page_config(page_title="Atlas Trust Ally", page_icon="🇲🇦", layout="
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
                     url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?q=80&w=1064&auto=format&fit=crop')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
     }
-    h1 {
-        font-size: 12rem;
+    
+    .premium-title {
+        font-size: 11rem;
         font-weight: 900;
         text-align: center;
-        background: linear-gradient(90deg, #e31e24 0%, #e31e24 38%, #ffffff 20%, #006400 62%, #006400 70%);
+        background: linear-gradient(to right,
+            #e31e24 0%,
+            #ff4444 15%,
+            #ffffff 35%,
+            #ffffff 65%,
+            #00aa00 85%,
+            #006400 100%
+        );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 50px rgba(0,0,0,0.8);
-        letter-spacing: 10px;
+        background-clip: text;
+        text-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 100px rgba(227,30,36,0.2);
+        letter-spacing: 12px;
         margin: 2rem 0 1rem 0;
+        line-height: 1.2;
+        animation: gentleGlow 4s ease-in-out infinite alternate;
     }
+    
+    @keyframes gentleGlow {
+        from { text-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 100px rgba(227,30,36,0.2); }
+        to { text-shadow: 0 0 80px rgba(255,255,255,0.5), 0 0 120px rgba(0,100,0,0.3); }
+    }
+    
     .tag {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         text-align: center;
         color: #ffffff;
         text-shadow: 0 0 30px rgba(0,0,0,0.9);
-        margin: 1rem 0 4rem 0;
+        margin: 1.5rem 0 4rem 0;
+        letter-spacing: 2px;
     }
+    
+    .privacy-caption {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #f0f0f0;
+        margin-bottom: 2rem;
+        font-style: italic;
+    }
+    
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
+        gap: 3rem;
         justify-content: center;
+        background: rgba(0,0,0,0.4);
+        padding: 10px;
+        border-radius: 15px;
+        margin-bottom: 2rem;
     }
+    
     .stTabs [data-baseweb="tab"] {
         font-size: 1.8rem;
         font-weight: bold;
-        padding: 1rem 2rem;
+        padding: 1rem 3rem;
+        color: white;
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background: linear-gradient(90deg, #e31e24, #006400);
+        color: white;
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>Atlas Trust Ally</h1>", unsafe_allow_html=True)
-st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
-st.caption("No personal data collected – photos processed on-device and deleted instantly. Your Privacy first ❤️")
 
-tab1, tab2 = st.tabs(["Souk   Ally", "Taxi   Ally"])
+st.markdown('<h1 class="premium-title">Atlas Trust Ally</h1>', unsafe_allow_html=True)
+
+
+st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
+
+
+st.markdown("<div class='privacy-caption'>No personal data collected – photos processed on-device and deleted instantly. Your privacy first ❤️</div>", unsafe_allow_html=True)
+
+
+tab1, tab2 = st.tabs(["🛍️ Souk Ally", "🚕 Taxi Ally"])
 
 # ========================= SOUK TAB =========================
 with tab1:
