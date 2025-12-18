@@ -366,7 +366,7 @@ with tab2:
                         st.warning("**Airport trip detected**")
                         st.info("For trips to/from Rabat-Salé Airport, use **grand taxi** (white) – fixed price ~250-300 DH (no meter)")
 
-                    st.write("**Sources**: Real petit taxi rates in Rabat (2025)")
+                    st.write("**Sources**: Fair price estimates based on real petit taxi usage in Rabat")
 
                 st.caption("Atlas Trust Ally uses open, verifiable logic – no black box!")
 
