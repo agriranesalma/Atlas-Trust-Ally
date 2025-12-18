@@ -68,10 +68,6 @@ with tab1:
     }
     df = pd.DataFrame(data)
 
-    darija_lines = [
-        "هاد الثمن للسياح فقط؟ غالي بزاف!"
-    ]
-
     @st.cache_resource
     def load_interpreter():
         interpreter = tf.lite.Interpreter(model_path="souk_items_model.tflite")
@@ -170,33 +166,46 @@ with tab1:
                 st.session_state.pop(k, None)
             st.rerun()
 
-    # ========================= EDUCATIONAL SOUK MAP (Option 2) =========================
+    # ==================================================
     st.markdown("---")
-    st.subheader("Souk Zones – Bargaining Culture in Rabat")
+    st.subheader("Discover Souk Culture in Rabat")
 
     m_souk = folium.Map(location=[34.0209, -6.8352], zoom_start=14, tiles="cartodbpositron")
 
-    # Blue circle: Main tourist souk – vibrant, bargaining common
+    # Circle 1: Medina – the heart of traditional souk culture
     folium.CircleMarker(
         location=[34.0209, -6.8352],
-        radius=60,
-        color="#3498db",
+        radius=80,
+        color="#e67e22",  # Orange chaleureux
         fill=True,
-        fill_opacity=0.6,
-        popup="Main tourist souk – vibrant atmosphere, lots of choice, bargaining is part of the experience",
-        tooltip="Medina of Rabat"
+        fill_opacity=0.7,
+        popup="Medina of Rabat",
+        tooltip="<div style='font-size: 14px; width: 220px;'><b>Medina of Rabat</b><br>The historic heart of souk culture – vibrant stalls, traditional crafts, spices, and the authentic Moroccan experience full of life and colors.</div>"
     ).add_to(m_souk)
 
-    # Green circle: Local markets – authentic, often fairer prices
+    # Circle 2: Agdal / Modern districts – contemporary souk vibe
     folium.CircleMarker(
-        location=[34.0389, -6.8166],
-        radius=50,
-        color="#2ecc71",
+        location=[34.0020, -6.8560],
+        radius=70,
+        color="#3498db",  # Bleu doux
         fill=True,
-        fill_opacity=0.6,
-        popup="Local markets – authentic experience, often fairer prices and friendly vendors",
-        tooltip="Sale Medina"
+        fill_opacity=0.7,
+        popup="Agdal & Modern Districts",
+        tooltip="<div style='font-size: 14px; width: 220px;'><b>Agdal & Modern Districts</b><br>Contemporary souks and artisan boutiques – blend of tradition and modernity, perfect for unique finds in a relaxed atmosphere.</div>"
     ).add_to(m_souk)
+
+    # Optional third circle: Hay Riad – upscale artisan area
+    folium.CircleMarker(
+        location=[34.0000, -6.8200],
+        radius=60,
+        color="#9b59b6",  # Violet élégant
+        fill=True,
+        fill_opacity=0.7,
+        popup="Hay Riad District",
+        tooltip="<div style='font-size: 14px; width: 220px;'><b>Hay Riad District</b><br>Upscale artisan shops and galleries – high-quality crafts, leather goods, and modern Moroccan design in a calm setting.</div>"
+    ).add_to(m_souk)
+
+    st_folium(m_souk, width=700, height=400, key="souk_map_positive")
 
     st_folium(m_souk, width=700, height=400, key="souk_map_educational")
 
