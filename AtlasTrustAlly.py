@@ -304,18 +304,21 @@ with tab2:
         with col1:
             taxi_price = st.text_input("Price asked by driver (DH)", placeholder="150")
         with col2:
-            night = st.checkbox("Night trip (after 8 PM) +50%")
+            night = st.checkbox("Night trip (after 8 PM) +30%")
 
         if st.button("Check Taxi Fare!", type="primary"):
             if not taxi_price.isdigit():
                 st.error("Enter a valid price")
             else:
                 distance = haversine(dep_point[0], dep_point[1], arr_point[0], arr_point[1])
-                base_fare = 8  # Prise en charge jour
-                price_per_km = 8  # Prix moyen par km (petit taxi Rabat)
-                base_price = max(25, base_fare + distance * price_per_km)
-                fair_price = int(base_price * 1.5) if night else int(base_price)
                 asked = int(taxi_price)
+
+                # Logique tarifaire petit taxi Rabat (2025)
+                price_per_km_day = 8  # DH par km (jour)
+                calculated_day = distance * price_per_km_day
+                base_price = max(8, calculated_day)  # Minimum 8 DH
+
+                fair_price = int(base_price * 1.3) if night else int(base_price)  # +30% nuit
 
                 # Détection aéroport
                 airport_trip = any(haversine(p[0], p[1], 34.0511, -6.7515) < 10 for p in [dep_point, arr_point])
@@ -338,27 +341,26 @@ with tab2:
                 st.subheader("How the fair price is calculated (transparent IA)")
 
                 with st.expander("View detailed price breakdown", expanded=True):
-                    st.write("**Our algorithm is fully transparent – here's exactly how we calculate the fair price:**")
-                    st.write(f"• **Base fare (day)**: 8 DH (standard pickup charge)")
-                    st.write(f"• **Price per km**: ~8 DH/km (average for petit taxi in Rabat)")
-                    st.write(f"• **Distance calculated**: {distance:.1f} km (straight-line, real GPS distance)")
-                    st.write(f"• **Base price (day)**: 8 + ({distance:.1f} × 8) = **{base_price:.0f} DH** (minimum 25 DH)")
+                    st.write("**Our algorithm is fully transparent – here's exactly how we calculate:**")
+                    st.write(f"• **Price per km (day)**: 8 DH/km")
+                    st.write(f"• **Distance**: {distance:.1f} km")
+                    st.write(f"• **Calculated (day)**: {distance:.1f} × 8 = {calculated_day:.0f} DH")
+                    st.write(f"• **Minimum fare**: 8 DH → **Base price (day)**: **{base_price:.0f} DH**")
 
                     if night:
-                        st.write("• **Night surcharge (+50%)**: Applied after 8 PM")
-                        st.write(f"• **Final fair price (night)**: {base_price:.0f} × 1.5 = **{fair_price} DH**")
+                        st.write("• **Night surcharge**: +30% (after 8 PM)")
+                        st.write(f"• **Final fair price (night)**: {base_price:.0f} × 1.3 = **{fair_price} DH**")
 
                     if airport_trip:
                         st.warning("**Special case – Airport trip detected**")
                         st.info("For trips to/from Rabat-Salé Airport, use **grand taxi** (white) – fixed price ~250-300 DH (no meter)")
 
-                    st.write("**Sources**: Tarifs officiels petit taxi Rabat + real user data (2025)")
+                    st.write("**Sources**: Real petit taxi rates in Rabat + user observations (2025)")
 
-                st.caption("Bargain Guardian uses open, verifiable logic – no black box AI for pricing!")
+                st.caption("Bargain Guardian uses open, verifiable logic – no black box!")
 
         if st.button("New taxi check"):
             st.session_state.taxi_points = {"depart": None, "arrival": None}
             st.rerun()
-
 st.markdown("---")
 st.caption("Atlas Trust Ally © 2030 – Your shield against possible overpricing in Rabat's souks and taxis 🇲🇦")
