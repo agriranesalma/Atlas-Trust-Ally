@@ -67,6 +67,9 @@ with tab1:
         "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
     }
     df = pd.DataFrame(data)
+    darija_lines = [
+        "هاد الثمن للسياح فقط؟ غالي بزاف!"
+    ]
 
     @st.cache_resource
     def load_interpreter():
