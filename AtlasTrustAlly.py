@@ -149,14 +149,6 @@ with tab1:
 
     with open("souk_items_labels.txt", "r", encoding="utf-8") as f:
         labels = [line.strip() for line in f.readlines()]
-    st.info(f"Model loaded – {len(labels)} classes detected")
-    st.write("**Class order in labels.txt (index = class):**")
-    for i, label in enumerate(labels):
-        st.write(f"{i} → {label}")
-
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    st.caption(f"Model input shape: {input_details[0]['shape']} | Output shape: {output_details[0]['shape']}")
 
     def predict_item(img_pil):
         img = img_pil.convert("RGB").resize((224, 224))
