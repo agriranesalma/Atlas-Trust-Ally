@@ -202,7 +202,11 @@ with tab1:
             try:
                 img = Image.open(photo_to_use)
                 name, conf = predict_item(img)
-                st.success(f"Detected → {name} ({conf:.1%})")
+                if conf < 0.5:
+                    st.warning(f"Low confidence ({conf:.1%}) – please confirm manually")
+                else:
+                    st.success(f"Detected → {name} ({conf:.1%})")
+
         
             except Exception as e:
                 st.error("AI ERROR (this is NOT a photo clarity issue)")
