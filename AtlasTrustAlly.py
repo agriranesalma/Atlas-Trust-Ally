@@ -108,31 +108,13 @@ with tab1:
         "item_en": [
             "Leather bag",
             "Tajine pot",
-            "Babouches",
-            "Atay cup",
-            "Teapot",
-            "Household keyholder",
-            "Reed mat",
-            "Jellaba",
-            "Jabador",
-            "Ceramic vase (medium)",
-            "Ceramic plate"
         ],
         "item_ar": [
             "حقيبة جلدية",
             "طاجين صغير",
-            "بابوش",
-            "كاس أتاي",
-            "براد شاي",
-            "حامل مفاتيح منزلي",
-            "حصيرة قصب",
-            "جلابة",
-            "جبادور",
-            "فازة فخارية (متوسطة)",
-            "طبق فخاري"
         ],
-        "min_price": [80, 15, 100, 15, 50, 50, 60, 200, 200, 100, 20],
-        "max_price": [250, 35, 400, 55, 280, 150, 300, 550, 550, 300, 120]
+        "min_price": [80, 15],
+        "max_price": [250, 35]
     }
     df = pd.DataFrame(data)
     darija_lines = [
