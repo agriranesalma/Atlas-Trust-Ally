@@ -184,7 +184,6 @@ with tab1:
         fill_opacity=0.7,
         popup="<b>Medina of Rabat</b><br>Vibrant historic souk",
         tooltip="<b>Medina of Rabat</b><br> – full of colors, crafts, spices and lively atmosphere"
-        tooltip="<b>Medina of Rabat</b><br>full of colors, crafts, spices and lively traditional atmosphere"
     ).add_to(m_souk)
 
     # Circle 2: Agdal / Modern districts – contemporary souk vibe
