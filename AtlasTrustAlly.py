@@ -155,6 +155,8 @@ with tab1:
     
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
+        print(interpreter.get_input_details())
+        print(interpreter.get_output_details())
     
         if input_details[0]["dtype"] == np.uint8:
             input_array = np.expand_dims(np.array(img, dtype=np.uint8), axis=0)
