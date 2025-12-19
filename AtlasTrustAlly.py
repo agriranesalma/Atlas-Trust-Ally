@@ -186,6 +186,8 @@ with tab1:
             try:
                 img = Image.open(photo_to_use)
                 name, conf = predict_item(img)
+                if name in df["item_en"].values:
+                    default_idx = df.index[df["item_en"] == name][0]
                 if conf < 0.5:
                     st.warning(f"Low confidence ({conf:.1%}) – please confirm manually")
                 else:
@@ -196,12 +198,11 @@ with tab1:
                 st.error("AI ERROR (this is NOT a photo clarity issue)")
                 st.code(str(e))
 
-        selected_idx = st.selectbox(
-            "Confirm or choose item",
-            options=range(len(df)),
-            index=default_idx,
-            format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
-        )
+            selected_idx = st.selectbox(
+                "Confirm or choose item",
+                options=df.index.tolist(),
+                index=default_idx,
+                format_func=lambda x: f"{df.loc[x, 'item_en']} – {df.loc[x, 'item_ar']}")
 
     if st.button("Check Price!", type="primary"):
         if not price_input or not price_input.isdigit():
