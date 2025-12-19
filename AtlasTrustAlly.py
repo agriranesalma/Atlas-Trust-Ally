@@ -165,8 +165,6 @@ with tab1:
                 if conf >= 0.80: 
                     clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
                     match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
-                    if not match.empty:
-                        
             except:
                 pass
 
