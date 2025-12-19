@@ -168,8 +168,8 @@ with tab1:
                     if not match.empty:
                         default_idx = int(match.index[0])
                         st.info("Artical not autoselected")
-        except:
-            pass
+            except:
+                pass
 
   
         selected_idx = st.selectbox(
