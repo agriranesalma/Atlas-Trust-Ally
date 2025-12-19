@@ -106,8 +106,8 @@ with tab1:
 
     data = {
         "item_en": [
-            "Tajine pot",
             "Leather bag",
+            "Tajine pot",
             "Babouches",
             "Atay cup",
             "Teapot",
@@ -119,8 +119,8 @@ with tab1:
             "Ceramic plate"
         ],
         "item_ar": [
-            "طاجين صغير",
             "حقيبة جلدية",
+            "طاجين صغير",
             "بابوش",
             "كاس أتاي",
             "براد شاي",
