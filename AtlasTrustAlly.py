@@ -152,7 +152,9 @@ with tab1:
 
     def predict_item(img_pil):
         img = img_pil.convert("RGB").resize((224, 224))
+    
         input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
     
         if input_details[0]["dtype"] == np.uint8:
             input_array = np.expand_dims(np.array(img, dtype=np.uint8), axis=0)
@@ -165,11 +167,20 @@ with tab1:
         interpreter.set_tensor(input_details[0]["index"], input_array)
         interpreter.invoke()
     
-        output_details = interpreter.get_output_details()
-        predictions = interpreter.get_tensor(output_details[0]["index"])[0]
-        idx = np.argmax(predictions)
+        output = interpreter.get_tensor(output_details[0]["index"])[0]
     
-        return labels[idx], float(predictions[idx])
+        if output_details[0]["dtype"] == np.uint8:
+            scale, zero_point = output_details[0]["quantization"]
+            output = scale * (output.astype(np.float32) - zero_point)
+    
+        exp = np.exp(output - np.max(output))
+        probs = exp / exp.sum()
+    
+        idx = np.argmax(probs)
+        confidence = probs[idx]
+    
+        return labels[idx], float(confidence)
+
 
 
 
