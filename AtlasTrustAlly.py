@@ -103,17 +103,15 @@ tab1, tab2 = st.tabs(["🛍️ Souk Ally", "🚕 Taxi Ally"])
 # ========================= SOUK TAB =========================
 with tab1:
     st.markdown("### Souk Bargain Helper – Never Overpay in the Medina")
-
     data = {
-    "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
-                "Ceramic plate", "Silver teapot", "Leather bag", "Spice mix 100g", "Small rug 1x1m"],
-    "item_ar": ["فانوس نحاسي", "طاجين فخار", "زيت أركان 100مل", "شال منسوج",
-                "طبق سيراميك", "تايبوت فضي", "حقيبة جلدية", "توابل 100غ", "زربية صغيرة 1×1م"],
-    "min_price": [120, 80, 150, 70, 50, 300, 250, 30, 800],
-    "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
+        "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
+                    "Ceramic plate", "Silver teapot", "Leather bag", "Spice mix 100g", "Small rug 1x1m"],
+        "item_ar": ["فانوس نحاسي", "طاجين فخار", "زيت أركان 100مل", "شال منسوج",
+                    "طبق سيراميك", "تايبوت فضي", "حقيبة جلدية", "توابل 100غ", "زربية صغيرة 1×1م"],
+        "min_price": [120, 80, 150, 70, 50, 300, 250, 30, 800],
+        "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
     }
     df = pd.DataFrame(data)
-
     darija_lines = [
         "هاد الثمن للسياح فقط؟ غالي بزاف!"
     ]
@@ -140,11 +138,7 @@ with tab1:
         idx = np.argmax(predictions)
         return labels[idx], float(predictions[idx])
 
-
-
-
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("1. Photo")
         photo = st.camera_input("Take a clear photo of the item", key="cam")
@@ -152,28 +146,40 @@ with tab1:
     with col2:
         st.subheader("2. Asked Price")
         price_input = st.text_input("Ex: 450 DH", placeholder="400", key="price_input")
-
         st.subheader("3. Item Type")
-        default_idx = 0
+
+        # --- Auto-detection logic ---
+        detected_index = 0 
         photo_to_use = photo or st.session_state.get("photo")
 
         if photo_to_use:
             try:
                 name, conf = predict_item(Image.open(photo_to_use))
-                st.success(f"I predict → **{name}** ({conf:.1%})")
-    
-                if conf >= 0.80: 
-                    clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
-                    match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
-            except:
-                pass
+                st.success(f"I predict → **{name}** ({conf:.1%} confidence)")
 
-  
+                if conf >= 0.80:
+                    
+                    clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
+
+                    
+                    matches = df["item_en"].str.lower().str.contains(clean_name.split()[0].lower(), regex=False)
+                    if matches.any():
+                        detected_index = df[matches].index[0]
+                        st.info(f"✅ Auto-selected: **{df.iloc[detected_index]['item_en']}**")
+                    else:
+                        st.warning("High confidence but no exact match in list – manual selection recommended.")
+                else:
+                    st.info("Confidence too low for auto-selection. Please choose manually.")
+            except Exception as e:
+                st.error("Error processing image.")
+                detected_index = 0
+
+      
         selected_idx = st.selectbox(
-        "Article (auto-sélectionné si photo claire)",
-        options=range(len(df)),
-        index=default_idx,
-        format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
+            "Article (auto-sélectionné si photo claire)",
+            options=range(len(df)),
+            index=detected_index, 
+            format_func=lambda x: f"{df.iloc[x]['item_en']} – {df.iloc[x]['item_ar']}"
         )
 
     if st.button("Check Price!", type="primary"):
@@ -186,16 +192,14 @@ with tab1:
             st.session_state.photo = photo
             st.rerun()
 
+
     if st.session_state.get("analyzed"):
         item = df.iloc[st.session_state.item_idx]
         price = st.session_state.price
-
         st.markdown("---")
         if st.session_state.photo:
             st.image(st.session_state.photo, use_column_width=True)
-
         st.subheader(f"{item['item_en']} – {item['item_ar']}")
-
         if price <= item["max_price"]:
             st.success(f"FAIR PRICE! You can pay {price} DH")
         elif price <= item["max_price"] * 1.5:
@@ -203,11 +207,9 @@ with tab1:
         else:
             st.error(f"TOO EXPENSIVE! Fair range: {item['min_price']}–{item['max_price']} DH")
             st.info("Say in Darija → " + darija_lines[price % len(darija_lines)])
-
         if price > item["max_price"]:
             savings = price - item["max_price"]
             st.success(f"You save **{savings} DH** by bargaining!")
-
         if st.button("New analysis"):
             for k in ["analyzed", "price", "item_idx", "photo"]:
                 st.session_state.pop(k, None)
