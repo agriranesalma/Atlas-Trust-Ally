@@ -190,7 +190,7 @@ with tab1:
                 name, conf = predict_item(img)
                 if name in df["item_en"].values:
                     default_idx = df.index[df["item_en"] == name][0]
-                if conf < 0.5:
+                if conf < 0.2:
                     st.warning(f"Low confidence ({conf:.1%}) – please confirm manually")
                 else:
                     st.success(f"Detected → {name} ({conf:.1%})")
