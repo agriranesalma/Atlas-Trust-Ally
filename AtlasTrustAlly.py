@@ -152,14 +152,23 @@ with tab1:
 
     def predict_item(img_pil):
         img = img_pil.convert("RGB").resize((224, 224))
-        input_array = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
+    
+        input_array = np.expand_dims(
+            np.array(img, dtype=np.uint8),
+            axis=0
+        )
+    
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
+    
         interpreter.set_tensor(input_details[0]["index"], input_array)
         interpreter.invoke()
+    
         predictions = interpreter.get_tensor(output_details[0]["index"])[0]
         idx = np.argmax(predictions)
+
         return labels[idx], float(predictions[idx])
+
 
     col1, col2 = st.columns(2)
 
