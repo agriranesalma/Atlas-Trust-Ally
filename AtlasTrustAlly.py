@@ -162,12 +162,11 @@ with tab1:
                 name, conf = predict_item(Image.open(photo_to_use))
                 st.success(f"I predict → **{name}** ({conf:.1%})")
     
-                if conf >= 0.70: 
+                if conf >= 0.80: 
                     clean_name = " ".join([w for w in name.split() if not w.isdigit()]).strip()
                     match = df[df["item_en"].str.contains(clean_name.split()[0], case=False, regex=False)]
                     if not match.empty:
-                        default_idx = int(match.index[0])
-                        st.info("Artical not autoselected")
+                        
             except:
                 pass
 
