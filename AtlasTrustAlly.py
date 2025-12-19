@@ -12,123 +12,59 @@ st.set_page_config(page_title="Atlas Trust Ally", page_icon="🇲🇦", layout="
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
                     url('https://images.unsplash.com/photo-1559925523-10de9e23cf90?q=80&w=1064&auto=format&fit=crop')
                     no-repeat center center fixed;
         background-size: cover;
         color: white !important;
     }
-    
-    .premium-title {
-        font-size: 11rem;
+    h1 {
+        font-size: 12rem;
         font-weight: 900;
         text-align: center;
-        background: linear-gradient(to right,
-            #e31e24 0%,
-            #e31e24 35%,   
-            #ffffff 45%,   
-            #ffffff 55%,
-            #006400 65%,   
-            #006400 100%
-        );
+        background: linear-gradient(90deg, #e31e24 0%, #e31e24 38%, #ffffff 20%, #006400 62%, #006400 70%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: 0 0 60px rgba(255,255,255,0.3);
-        letter-spacing: 12px;
+        text-shadow: 0 0 50px rgba(0,0,0,0.8);
+        letter-spacing: 10px;
         margin: 2rem 0 1rem 0;
-        line-height: 1.2;
     }
-    
-    @keyframes gentleGlow {
-        from { text-shadow: 0 0 60px rgba(255,255,255,0.3), 0 0 100px rgba(227,30,36,0.2); }
-        to { text-shadow: 0 0 80px rgba(255,255,255,0.5), 0 0 120px rgba(0,100,0,0.3); }
-    }
-    
     .tag {
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         font-weight: 700;
         text-align: center;
         color: #ffffff;
         text-shadow: 0 0 30px rgba(0,0,0,0.9);
-        margin: 1.5rem 0 4rem 0;
-        letter-spacing: 2px;
+        margin: 1rem 0 4rem 0;
     }
-    
-    .privacy-caption {
-        text-align: center;
-        font-size: 1.1rem;
-        color: #f0f0f0;
-        margin-bottom: 2rem;
-        font-style: italic;
-    }
-    
     .stTabs [data-baseweb="tab-list"] {
-        gap: 3rem;
+        gap: 2rem;
         justify-content: center;
-        background: rgba(0,0,0,0.4);
-        padding: 10px;
-        border-radius: 15px;
-        margin-bottom: 2rem;
     }
-    
     .stTabs [data-baseweb="tab"] {
         font-size: 1.8rem;
         font-weight: bold;
-        padding: 1rem 3rem;
-        color: white;
-        background: rgba(255,255,255,0.1);
-        border-radius: 12px;
-    }
-    
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background: linear-gradient(90deg, #e31e24, #006400);
-        color: white;
+        padding: 1rem 2rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-
-st.markdown('<h1 class="premium-title">Atlas Trust Ally</h1>', unsafe_allow_html=True)
-
-
+st.markdown("<h1>Atlas Trust Ally</h1>", unsafe_allow_html=True)
 st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
 
-
-st.markdown("<div class='privacy-caption'>No personal data collected – photos processed on-device and deleted instantly. Your privacy first ❤️</div>", unsafe_allow_html=True)
-
-
-tab1, tab2 = st.tabs(["🛍️ Souk Ally", "🚕 Taxi Ally"])
+tab1, tab2 = st.tabs(["Souk Bargain Helper", "Taxi Fare Checker"])
 
 # ========================= SOUK TAB =========================
 with tab1:
     st.markdown("### Souk Bargain Helper – Never Overpay in the Medina")
 
     data = {
-        "item_en": [
-            "Babouches",
-            "Atay cup",
-            "Saffron (20g)",
-            "Leather wallet",
-            "Leather shoes",
-            "Leather bag",
-            "Tajine pot",
-@@ -125,7 +124,6 @@
-            "بابوش",
-            "كاس أتاي",
-            "زعفران (20غ)",
-            "محفظة جلدية",
-            "أحذية جلدية",
-            "حقيبة جلدية",
-            "طاجين صغير",
-@@ -137,315 +135,315 @@
-            "فازة فخارية (متوسطة)",
-            "طبق فخاري"
-        ],
-        "min_price": [80, 15, 400, 50, 200, 100, 15, 50, 50, 60, 200, 200, 100, 20],
-        "max_price": [250, 35, 800, 250, 500, 400, 55, 280, 150, 300, 550, 550, 300, 120]
-        "min_price": [80, 15, 400, 200, 100, 15, 50, 50, 60, 200, 200, 100, 20],
-        "max_price": [250, 35, 800, 500, 400, 55, 280, 150, 300, 550, 550, 300, 120]
+        "item_en": ["Copper lantern", "Tajine pot", "Argan oil 100ml", "Handwoven scarf",
+                    "Ceramic plate", "Silver teapot", "Leather bag", "Spice mix 100g", "Small rug 1x1m"],
+        "item_ar": ["فانوس نحاسي", "طاجين فخار", "زيت أركان 100مل", "شال منسوج",
+                    "طبق سيراميك", "تايبوت فضي", "حقيبة جلدية", "توابل 100غ", "زربية صغيرة 1×1م"],
+        "min_price": [120, 80, 150, 70, 50, 300, 250, 30, 800],
+        "max_price": [220, 180, 280, 150, 120, 600, 550, 80, 1800]
     }
     df = pd.DataFrame(data)
     darija_lines = [
@@ -247,6 +183,7 @@ with tab1:
         fill=True,
         fill_opacity=0.7,
         popup="<b>Medina of Rabat</b><br>Vibrant historic souk",
+        tooltip="<b>Medina of Rabat</b><br> – full of colors, crafts, spices and lively atmosphere"
         tooltip="<b>Medina of Rabat</b><br>full of colors, crafts, spices and lively traditional atmosphere"
     ).add_to(m_souk)
 
@@ -257,6 +194,8 @@ with tab1:
         color="#3498db",  # Bleu doux
         fill=True,
         fill_opacity=0.7,
+        popup="Agdal & Modern Districts",
+        tooltip="<div style='font-size: 14px; width: 220px;'><b>Agdal & Modern Districts</b><br>Contemporary souks and artisan boutiques – blend of tradition and modernity, perfect for unique finds in a relaxed atmosphere.</div>"
         popup="<b>Agdal District</b><br>Modern souks and artisan shops – blend of tradition and contemporary style",
         tooltip="<b>Agdal District</b><br>relaxed atmosphere and unique finds"
     ).add_to(m_souk)
@@ -268,6 +207,8 @@ with tab1:
         color="#9b59b6",  # Violet élégant
         fill=True,
         fill_opacity=0.7,
+        popup="Hay Riad District",
+        tooltip="<div style='font-size: 14px; width: 220px;'><b>Hay Riad District</b><br>Upscale artisan shops and galleries – high-quality crafts, leather goods, and modern Moroccan design in a calm setting.</div>"
         popup="<b>Hay Riad District</b><br>Upscale artisan boutiques",
         tooltip="<b>Hay Riad</b><br>Upscale artisan shops and galleries"
     ).add_to(m_souk)
@@ -430,7 +371,7 @@ with tab2:
                         st.warning("**Airport trip detected**")
                         st.info("For trips to/from Rabat-Salé Airport, use **grand taxi** (white) – fixed price ~250-300 DH (no meter)")
 
-                    st.write("**Sources**: Fair price estimates based on real petit taxi usage in Rabat")
+                    st.write("**Sources**: Real petit taxi rates in Rabat (2025)")
 
                 st.caption("Atlas Trust Ally uses open, verifiable logic – no black box!")
 
