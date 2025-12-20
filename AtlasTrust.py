@@ -92,7 +92,7 @@ st.markdown("""
 st.markdown('<h1 class="premium-title">Atlas Trust</h1>', unsafe_allow_html=True)
 
 
-st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price in Rabat</div>", unsafe_allow_html=True)
+st.markdown("<div class='tag'>Souks + Taxis → Get the Fair Price</div>", unsafe_allow_html=True)
 
 
 st.markdown("<div class='privacy-caption'>No personal data collected – photos processed on-device and deleted instantly. Your privacy first ❤️</div>", unsafe_allow_html=True)
