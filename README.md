@@ -1,2 +1,2 @@
 # Atlas Trust Ally
-https://atlastrustally.streamlit.app/
+https://atlastrust.streamlit.app/
