@@ -100,7 +100,7 @@ st.markdown("<div class='privacy-caption'>No personal data collected – photos 
 
 tab1, tab2 = st.tabs(["🛍️ Souk Ally", "🚕 Taxi Ally"])
 
-# ========================= SOUK TAB =========================
+# SOUK TAB
 with tab1:
     st.markdown("### Souk Helper – Never Overpay in the Medina")
 
@@ -239,7 +239,6 @@ with tab1:
                 st.session_state.pop(k, None)
             st.rerun()
 
-    # ==================================================
     st.markdown("---")
     st.subheader("Discover Souk Culture in Rabat")
 
@@ -249,7 +248,7 @@ with tab1:
     folium.CircleMarker(
         location=[34.0209, -6.8352],
         radius=80,
-        color="#e67e22",  # Orange chaleureux
+        color="#e67e22",  
         fill=True,
         fill_opacity=0.7,
         popup="<b>Medina of Rabat</b><br>Vibrant historic souk",
@@ -260,18 +259,18 @@ with tab1:
     folium.CircleMarker(
         location=[34.0020, -6.8560],
         radius=70,
-        color="#3498db",  # Bleu doux
+        color="#3498db", 
         fill=True,
         fill_opacity=0.7,
         popup="<b>Agdal District</b><br>Modern souks and artisan shops – blend of tradition and contemporary style",
         tooltip="<b>Agdal District</b><br>relaxed atmosphere and unique finds"
     ).add_to(m_souk)
 
-    # Optional third circle: Hay Riad – upscale artisan area
+    # Third circle: Hay Riad – upscale artisan area
     folium.CircleMarker(
         location=[34.0000, -6.8200],
         radius=60,
-        color="#9b59b6",  # Violet élégant
+        color="#9b59b6", 
         fill=True,
         fill_opacity=0.7,
         popup="<b>Hay Riad District</b><br>Upscale artisan boutiques",
@@ -280,7 +279,7 @@ with tab1:
 
     st_folium(m_souk, width=700, height=400, key="souk_map")
 
-# ========================= TAXI TAB =========================
+# TAXI TAB 
 with tab2:
     st.markdown("### Taxi Fare Checker – Fair Taxi Prices in Rabat")
 
