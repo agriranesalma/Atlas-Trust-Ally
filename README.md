@@ -107,7 +107,7 @@ Atlas Trust solves a real, everyday problem:
 ## 👨‍💻 Author  
 
 **Salma Agrirane**  
-Software Engineering Student | Future AI & Big Data Engineer  
+AI & Big Data Engineering Student
 
 ---
 
